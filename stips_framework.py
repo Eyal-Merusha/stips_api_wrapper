@@ -96,3 +96,30 @@ class stips:
         res = self._make_request(params)
 
         return res["data"]["success"]
+    
+    
+    def username_to_id(self, username: str) -> int:
+        """
+        Finds id of a user
+
+            Parameters:
+                username: The username of the user
+
+            Returns:
+                The id of the user
+        """
+        params = {
+            "name": "smartdata.get",
+            "api_params": json.dumps({"namespace":"users","unit":"Search","q":username})}
+        
+        res = self._make_request(params)
+
+        profiles = res["data"]["results"]["profiles"]
+
+        if profiles:
+            for profile in profiles:
+                if profile["nickname"].lower() == username.lower():
+                    return profiles[0]["userid"]
+        return -1
+        
+
