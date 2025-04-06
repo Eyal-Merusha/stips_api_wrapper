@@ -153,3 +153,33 @@ class stips:
         res = self._make_post_request(params)
 
         return res
+    
+
+    def ask_question(self, question: str, tags: list[str], description="", link="", photo=0) -> dict:
+        """
+        Posts a question
+
+            Parameters:
+                question: The question
+                tags: The tags for the question
+                description (optional): Description for the question
+                link (optional): A link in addiotion to the question
+                photo (optional): Photo id
+
+            Returns:
+                The servers response as a dict
+        """
+        params = {
+            "name": "omniobj",
+            "rest_action": "PUT",
+            "omniobj": json.dumps({"data":{"q":question,
+                                           "q_link":link,
+                                           "text_content":description,
+                                           "tagslist":tags,
+                                           "photo":str(photo),
+                                           "ask_type":11},
+                                   "objType":"ask"})}
+        
+        res = self._make_post_request(params)
+
+        return res
