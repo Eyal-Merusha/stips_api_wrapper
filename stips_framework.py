@@ -24,9 +24,9 @@ class stips:
             self.session.close()
 
     
-    def _make_request(self, params: dict) -> dict:
+    def _make_get_request(self, params: dict) -> dict:
         """
-        Makes a request to Stips with the input parameters and returns a parsed json response
+        Makes a get request to Stips with the input parameters and returns a parsed json response
             
             Parameters:
                 params: The parameters of the request
@@ -36,13 +36,25 @@ class stips:
         """
         response = self.session.get(URL, params=params)
 
-        print(response.status_code)
-        print(response.text)
-
         return json.loads(response.text)
     
 
-    def send_message(self, user_id : int, message : str) -> int:
+    def _make_post_request(self, params: dict) -> dict:
+        """
+        Makes a post request to Stips with the input parameters and returns a parsed json response
+            
+            Parameters:
+                params: The parameters of the request
+            
+            Returns:
+                The response of the server
+        """
+        response = self.session.post(URL, params=params)
+
+        return json.loads(response.text)
+
+
+    def send_private_message(self, user_id : int, message : str) -> dict:
         """
         Sends a message to a user
 
@@ -51,18 +63,18 @@ class stips:
                 message: The message to send
 
             Returns:
-                The id of the message which was sent (0 if failed)
+                The servers response as a dict
         """
         params = {
             "name": "messages.send",
             "api_params": json.dumps({"touserid": user_id, "msg": message})}
         
-        res = self._make_request(params)
+        res = self._make_get_request(params)
 
-        return res["data"]["newid"]
+        return res
 
 
-    def login(self, email : str, password : str) -> bool:
+    def login(self, email : str, password : str) -> dict:
         """
         Logs in to a user
 
@@ -71,31 +83,31 @@ class stips:
                 password: The password of the user
 
             Returns:
-                Whether or not it was successful
+                The servers response as a dict
         """
         params = {
             "name": "user.login",
             "api_params": json.dumps({"email": email, "password": password, "auth_token": ""})}
         
-        res = self._make_request(params)
+        res = self._make_get_request(params)
         
-        return res["data"]["logged"]
+        return res
 
 
-    def logout(self) -> bool:
+    def logout(self) -> dict:
         """
         Logs out
 
             Returns:
-                Whether or not it was successful
+                The servers response as a dict
         """
         params = {
             "name": "user.logout",
             "api_params": json.dumps({})}
         
-        res = self._make_request(params)
+        res = self._make_get_request(params)
 
-        return res["data"]["success"]
+        return res
     
     
     def username_to_id(self, username: str) -> int:
@@ -112,7 +124,7 @@ class stips:
             "name": "smartdata.get",
             "api_params": json.dumps({"namespace":"users","unit":"Search","q":username})}
         
-        res = self._make_request(params)
+        res = self._make_get_request(params)
 
         profiles = res["data"]["results"]["profiles"]
 
@@ -123,3 +135,21 @@ class stips:
         return -1
         
 
+    def post_message(self, message: str) -> dict:
+        """
+        Posts a message in pen friends
+
+            Parameters:
+                message: The message to post
+
+            Returns:
+                The servers response as a dict
+        """
+        params = {
+            "name": "omniobj",
+            "rest_action": "PUT",
+            "omniobj": json.dumps({"data":{"msg": message},"objType":"penfriendsitem"})}
+        
+        res = self._make_post_request(params)
+
+        return res
